@@ -1,41 +1,54 @@
 package com.ramyjoo.fashionstore.config;
 
+import com.ramyjoo.fashionstore.security.JwtFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
+    private final UserDetailsService userDetailsService;
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          JwtFilter jwtFilter){
+        this.userDetailsService = userDetailsService;
+        this.jwtFilter = jwtFilter;
+    }// end constructor method
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/api/admin/**").hasAnyRole("ROLE_ADMIN")
+                                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
                                 .requestMatchers("/api/**").authenticated()
                                 .anyRequest().permitAll())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(JwtFilter, BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, BasicAuthenticationFilter.class)
                 .build();
-
-
-
-
-        return null;
-    }
+    } // end SecurityFilterChain
 
     private CorsConfigurationSource corsConfigurationSource() {
 
@@ -46,7 +59,28 @@ public class SecurityConfig {
                 CorsConfiguration cfg = new CorsConfiguration();
 
                 cfg.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // add the vercel link later
+                cfg.setAllowedHeaders(Collections.singletonList("*"));
+                cfg.setAllowedMethods(Collections.singletonList("*"));
+                cfg.setAllowCredentials(true);
+                cfg.setExposedHeaders(List.of("Authorization"));
+                cfg.setMaxAge(3600L);
+
+                return cfg;
+
             }
-        }
+        }; // end CorsConfiguration
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder(12);
+    } // end passwordEncoder
+
+    // Application Manager
+    @Bean
+    public AuthenticationManager authenticationManager(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
     }
 }
