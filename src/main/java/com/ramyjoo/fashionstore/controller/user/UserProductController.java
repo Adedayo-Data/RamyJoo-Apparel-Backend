@@ -1,4 +1,4 @@
-package com.ramyjoo.fashionstore.controller;
+package com.ramyjoo.fashionstore.controller.user;
 
 import com.ramyjoo.fashionstore.dto.ProductResponseDTO;
 import com.ramyjoo.fashionstore.model.Product;
