@@ -1,5 +1,6 @@
 package com.ramyjoo.fashionstore.controller.user;
 
+import com.ramyjoo.fashionstore.dto.FilterOptionDTO;
 import com.ramyjoo.fashionstore.dto.ProductResponseDTO;
 import com.ramyjoo.fashionstore.model.Product;
 import com.ramyjoo.fashionstore.service.ProductService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products/")
@@ -31,7 +33,7 @@ public class UserProductController {
 
        
         for(Product p : allProduct){
-            ProductResponseDTO responseDTO =  modelMapper.map(Product.class, ProductResponseDTO.class);
+            ProductResponseDTO responseDTO =  modelMapper.map(p, ProductResponseDTO.class);
             productResponseList.add(responseDTO);
         }
 
@@ -41,21 +43,17 @@ public class UserProductController {
     // VIEW SINGLE PRODUCT -> detailed view
     // VIEW ALL PRODUCT -> make summary DTO v2
     @GetMapping("/{id}")
-    public ResponseEntity<List<ProductResponseDTO>> getProductById(@PathVariable Long id) throws Exception{
-        List<ProductResponseDTO> productResponseList = new ArrayList<>();
+    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) throws Exception{
+        Optional<Product> productById = productService.getProductById(id);
 
-        List<Product> allProduct = productService.getAllProducts();
-
-//        modelMapper.createTypeMap(Product.class, ProductResponseDTO.class)
-//                .addMapping(prod -> prod.getSubCategory().getParentCategory().getCategoryName(), ProductResponseDTO::setCategory)
-//                .addMapping(prod-> prod.getSubCategory().getSubCategoryName(), ProductResponseDTO::setSubCategory);
-
-        for(Product p : allProduct){
-            ProductResponseDTO responseDTO =  modelMapper.map(p, ProductResponseDTO.class);
-            productResponseList.add(responseDTO);
+        if(productById.isEmpty()){
+            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
         }
 
-        return new ResponseEntity<>(productResponseList, HttpStatus.OK);
+        Product product = productById.get();
+        ProductResponseDTO responseDTO =  modelMapper.map(product, ProductResponseDTO.class);
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     @GetMapping("/by-category")// TO FIX: should be category id
@@ -144,5 +142,24 @@ public class UserProductController {
         }
 
         return new ResponseEntity<>(productResponseList, HttpStatus.OK);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProductResponseDTO>> filterProducts(
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) String subCategoryName,
+            @RequestParam(required = false) BigDecimal price,
+            @RequestParam(required = false) String size,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String keyword
+    ) {
+        List<ProductResponseDTO> filtered = productService.filterProducts(categoryName, subCategoryName, price, size, color, keyword);
+        return ResponseEntity.ok(filtered);
+    }
+
+    @GetMapping("/filter-option")
+    public ResponseEntity<FilterOptionDTO> filterOptions(){
+        FilterOptionDTO filterOptionDTO = productService.filterOptions();
+        return new ResponseEntity<>(filterOptionDTO, HttpStatus.OK);
     }
 }

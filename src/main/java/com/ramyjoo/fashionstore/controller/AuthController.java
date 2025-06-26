@@ -21,13 +21,16 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponseDTO> signup(@RequestBody User user){
+        System.out.println("COntroller hit!");
         AuthResponseDTO responseDTO = userService.createUserHandler(user);
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
     @PostMapping("/signin")
     public ResponseEntity<AuthResponseDTO> signin(@RequestBody AuthRequestDTO loginRequestDTO){
+        System.out.println("In signin!");
         AuthResponseDTO responseDTO = userService.validateLoginRequest(loginRequestDTO);
+        System.out.println("JWT: " + responseDTO.getJwt());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }

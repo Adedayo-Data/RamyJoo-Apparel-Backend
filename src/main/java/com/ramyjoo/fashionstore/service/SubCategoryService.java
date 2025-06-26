@@ -23,21 +23,29 @@ public class SubCategoryService {
     private CategoryRepository categoryRepo;
 
     public SubCategory setSubCategory(String mainCategory, String subCategory) {
-        SubCategory category = subCatRepo.findBySubCategoryName(ValidationUtils.getInstance().trimAndLowerCase(subCategory));
+        SubCategory category = subCatRepo.findBySubCategoryName(subCategory);
         System.out.println("SubCategory: " + category);
         // TO FIX: Exception handling
         return Objects.requireNonNullElseGet(category, () -> createSubCategory(mainCategory, subCategory));
     }
 
     public SubCategory createSubCategory(String mainCategory, String subCategory) {
-        Category cat = new Category();
+        System.out.println("I was called");
+        Category category = categoryRepo.findByCategoryName(mainCategory);
         SubCategory subCat = new SubCategory();
-
-        cat.setCategoryName(mainCategory);
-        Category savedCat = categoryRepo.save(cat);
+        System.out.println(category);
+        // check if category already exist in the database if it exist, no need to save if not save
+        if(category == null){
+            Category cat = new Category();
+            cat.setCategoryName(mainCategory);
+            Category savedCat = categoryRepo.save(cat);
+            System.out.println(savedCat);
+            subCat.setSubCategoryName(subCategory);
+            subCat.setParentCategory(cat);
+        }
 
         subCat.setSubCategoryName(subCategory);
-        subCat.setParentCategory(savedCat);
+        subCat.setParentCategory(category);
 
         return subCatRepo.save(subCat);
     }

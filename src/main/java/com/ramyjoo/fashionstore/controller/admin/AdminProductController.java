@@ -4,26 +4,26 @@ import com.ramyjoo.fashionstore.dto.CreateProductRequest;
 import com.ramyjoo.fashionstore.dto.ProductResponseDTO;
 import com.ramyjoo.fashionstore.model.Product;
 import com.ramyjoo.fashionstore.service.ProductService;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/admin/products")
+@AllArgsConstructor
 public class AdminProductController {
 
-    @Autowired
-    ProductService productService;
-
-    @Autowired
-    ModelMapper modelMapper;
+    private final ProductService productService;
+    private final ModelMapper modelMapper;
 
     @PostMapping("/createProduct")
     public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody CreateProductRequest request){
@@ -32,19 +32,18 @@ public class AdminProductController {
 
         System.out.println(product.toString());
 
-        responseDTO.setProductName(request.getProductName());
-        responseDTO.setDescription(request.getDescription());
-        responseDTO.setPrice(request.getPrice());
-        responseDTO.setBrand(request.getBrand());
-        responseDTO.setCategory(product.getSubCategory().getParentCategory().getCategoryName());
-        responseDTO.setSubCategory(product.getSubCategory().getSubCategoryName());
-        responseDTO.setColorList(request.getColorList());
-        responseDTO.setSizeList(request.getSizeList());
-        responseDTO.setImages(request.getImages());
-        responseDTO.setAvailable(request.getAvailable());
+        responseDTO =  modelMapper.map(product, ProductResponseDTO.class);
+//        responseDTO.setProductName(request.getProductName());
+//        responseDTO.setDescription(request.getDescription());
+//        responseDTO.setPrice(request.getPrice());
+//        responseDTO.setBrand(request.getBrand());
+//        responseDTO.setCategory(product.getSubCategory().getParentCategory().getCategoryName());
+//        responseDTO.setSubCategory(product.getSubCategory().getSubCategoryName());
+//        responseDTO.setColorList(request.getColorList());
+//        responseDTO.setSizeList(request.getSizeList());
+//        responseDTO.setImages(request.getImages());
+//        responseDTO.setAvailable(request.getAvailable());
 
-        System.out.println("Main cat: " + product.getSubCategory().getSubCategoryName());
-        System.out.println("Sub cat: " + product.getSubCategory().getSubCategoryName());
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
     }
@@ -108,8 +107,17 @@ public class AdminProductController {
 
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
-//
-//    @GetMapping// TO FIX: should be category id
+
+    @PutMapping("/{id}/image")
+    public ResponseEntity<ProductResponseDTO> updateProductImage(
+            @PathVariable Long id,
+            @RequestParam MultipartFile file) throws IOException {
+
+        return ResponseEntity.ok(productService.updateProductImage(id, file));
+    }
+
+    //
+//    @GetMapping// TO FIX: sh@RequestParam MultipartFile fileould be category id
 //    public ResponseEntity<List<ProductResponseDTO>> filterByCategory(@RequestParam String categoryName) throws Exception{
 //        List<ProductResponseDTO> productResponseList = new ArrayList<>();
 //

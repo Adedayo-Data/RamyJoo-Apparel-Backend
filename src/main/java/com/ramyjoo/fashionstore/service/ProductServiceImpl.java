@@ -1,23 +1,33 @@
 package com.ramyjoo.fashionstore.service;
 
+import com.ramyjoo.fashionstore.dto.ProductResponseDTO;
+import com.ramyjoo.fashionstore.dto.FilterOptionDTO;
+import com.ramyjoo.fashionstore.exceptions.ResourceNotFoundException;
 import com.ramyjoo.fashionstore.model.Product;
 import com.ramyjoo.fashionstore.dto.CreateProductRequest;
 import com.ramyjoo.fashionstore.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ramyjoo.fashionstore.repository.SubCategoryRepository;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Service
+@AllArgsConstructor
 public class ProductServiceImpl implements ProductService{
 
-    @Autowired
-    private ProductRepository productRepo;
-
-    @Autowired
-    private SubCategoryService subCategoryService;
+    private final ProductRepository productRepo;
+    private final SubCategoryRepository subCategoryRepo;
+    private final SubCategoryService subCategoryService;
+    private final CloudinaryService cloudinaryService;
+    private final ModelMapper modelMapper;
 
     @Override
     public List<Product> getAllProducts() {
@@ -61,6 +71,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product createProduct(CreateProductRequest request) {
+
         // TO FIX: Exception Handling
         Product product = new Product();
 
@@ -74,6 +85,7 @@ public class ProductServiceImpl implements ProductService{
         product.setImages(request.getImages());
         product.setAvailable(request.getAvailable());
 
+        System.out.println(product);
         return productRepo.save(product);
     }
 
@@ -81,7 +93,7 @@ public class ProductServiceImpl implements ProductService{
     public Product updateProduct(Long id, CreateProductRequest updateRequest) {
         Optional<Product> product = productRepo.findById(id);
 
-        System.out.println(product.toString());
+        System.out.println(product);
 
         product.ifPresent(realProduct -> realProduct.setProductName(updateRequest.getProductName()));
 
@@ -127,4 +139,91 @@ public class ProductServiceImpl implements ProductService{
             throw new RuntimeException("Product not found. Error Occured!");
         });
     }
+
+    @Override
+    public ProductResponseDTO updateProductImage(Long productId, MultipartFile file) throws IOException {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        System.out.println("Product is: " +product);
+        String imageUrl = cloudinaryService.uploadImage(file);
+
+        List<String> images = product.getImages();
+        images.add(imageUrl);
+        product.setImages(images);
+
+        Product savedProduct = productRepo.save(product);
+        return modelMapper.map(savedProduct, ProductResponseDTO.class);
+    }
+
+    @Override
+    public List<ProductResponseDTO> filterProducts(
+            String categoryName,
+            String subCategoryName,
+            BigDecimal price,
+            String size,
+            String color,
+            String keyword
+    ) {
+        List<Product> products = productRepo.findAll();
+
+//        if (categoryName != null && !categoryName.isBlank()) {
+//            products = products.stream()
+//                    .filter(p -> p.getSubCategory() != null &&
+//                            p.getSubCategory().getParentCategory() != null &&
+//                            p.getSubCategory().getParentCategory().getCategoryName().equalsIgnoreCase(categoryName))
+//                    .collect(Collectors.toList());
+//        }
+
+        if (subCategoryName != null && !subCategoryName.isBlank()) {
+            products = products.stream()
+                    .filter(p -> p.getSubCategory() != null &&
+                            p.getSubCategory().getSubCategoryName().equalsIgnoreCase(subCategoryName))
+                    .collect(Collectors.toList());
+        }
+
+        if (price != null) {
+            products = products.stream()
+                    .filter(p -> p.getPrice() != null && p.getPrice().compareTo(price) == 0)
+                    .collect(Collectors.toList());
+        }
+
+        if (size != null && !size.isBlank()) {
+            products = products.stream()
+                    .filter(p -> p.getSizeList() != null && p.getSizeList().contains(size))
+                    .collect(Collectors.toList());
+        }
+
+        if (color != null && !color.isBlank()) {
+            products = products.stream()
+                    .filter(p -> p.getColorList() != null && p.getColorList().contains(color))
+                    .collect(Collectors.toList());
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            String lowerKeyword = keyword.toLowerCase();
+            products = products.stream()
+                    .filter(p -> (p.getProductName() != null && p.getProductName().toLowerCase().contains(lowerKeyword)) ||
+                            (p.getBrand() != null && p.getBrand().toLowerCase().contains(lowerKeyword)) ||
+                            (p.getColorList() != null &&
+                                    p.getColorList().stream().anyMatch(c -> c.toLowerCase().contains(lowerKeyword))))
+                    .collect(Collectors.toList());
+        }
+
+        // Map to DTOs
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public FilterOptionDTO filterOptions(){
+        FilterOptionDTO filterOptionDTO = new FilterOptionDTO();
+        filterOptionDTO.setBrands(productRepo.getAllBrands());
+        filterOptionDTO.setColors(productRepo.getAllColorList());
+        filterOptionDTO.setCategories(subCategoryRepo.getAllSubCategoryName());
+
+        return filterOptionDTO;
+    }
+
 }
+

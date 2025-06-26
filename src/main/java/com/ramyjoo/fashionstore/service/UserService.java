@@ -1,13 +1,13 @@
 package com.ramyjoo.fashionstore.service;
 
-import com.ramyjoo.fashionstore.dto.AuthRequestDTO;
-import com.ramyjoo.fashionstore.dto.AuthResponseDTO;
-import com.ramyjoo.fashionstore.model.Address;
-import com.ramyjoo.fashionstore.model.USER_ROLE;
-import com.ramyjoo.fashionstore.model.User;
-import com.ramyjoo.fashionstore.model.UserPrincipal;
+import com.ramyjoo.fashionstore.dto.*;
+import com.ramyjoo.fashionstore.model.*;
+import com.ramyjoo.fashionstore.repository.AddressRepository;
+import com.ramyjoo.fashionstore.repository.CartRepository;
 import com.ramyjoo.fashionstore.repository.UserRepository;
 import com.ramyjoo.fashionstore.security.JwtService;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,27 +17,29 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserRepository userRepo;
+    private final AddressRepository addressRepo;
+    private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepo;
+    private final CartRepository cartRepo;
+    private final ModelMapper modelMapper;
+    private CloudinaryService cloudinaryService;
 
     // User Registration
     public AuthResponseDTO createUserHandler(@RequestBody User user){
@@ -46,7 +48,6 @@ public class UserService {
             if(isUserExist != null){
                 throw new BadCredentialsException("Email already Exist!");
             }
-
             User createdUser = new User();
             createdUser.setEmail(user.getEmail());
             createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -55,14 +56,24 @@ public class UserService {
             createdUser.setPhone(user.getPhone());
             createdUser.setRole(user.getRole());
             createdUser.setDeliveryAddress(user.getDeliveryAddress());
-
             // setting users reference for address column
-            List<Address> addresses = createdUser.getDeliveryAddress();
-            for(Address address : addresses){
-                address.setUser(createdUser);
-            }
+//            List<Address> addresses = createdUser.getDeliveryAddress();
+//            for(Address address : addresses){
+//                address.setUser(createdUser);
+//            }
+            // Save user
+            User savedUser = userRepo.save(createdUser);
 
-            userRepo.save(createdUser);
+            // saving user Address info
+            Address address = savedUser.getDeliveryAddress();
+            address.setUser(savedUser);
+            addressRepo.save(address);
+
+            // saving cart per user
+            Cart cart = new Cart();
+            cart.setUser(savedUser);
+            cart.setTotalAmount(BigDecimal.ZERO);
+            cartRepo.save(cart);
 
             Collection<? extends GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(String.valueOf(createdUser.getRole())));
             // authenticate the user after saving
@@ -122,5 +133,49 @@ public class UserService {
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    public ProfileResponseDto updateProfilePhoto(MultipartFile file) throws IOException {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepo.findByEmail(userPrincipal.getUsername());
+
+        String imageUrl = cloudinaryService.uploadImage(file);
+        user.setProfilePhoto(imageUrl);
+
+        userRepo.save(user);
+        return modelMapper.map(user, ProfileResponseDto.class);
+    }
+
+    public ProfileResponseDto userProfile(){
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepo.findByEmail(userPrincipal.getUsername());
+
+        if(user == null){
+            throw new UsernameNotFoundException("User not found!");
+        }
+
+        return modelMapper.map(user, ProfileResponseDto.class);
+    }
+
+    public ProfileResponseDto updateProfile(ProfileRequestDTO request) throws Exception {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepo.findByEmail(userPrincipal.getUsername());
+//        Address address = new Address();
+//        address.setUser(user);
+
+        // Update fields
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setGender(request.getGender());
+        user.setRole(request.getRole());
+
+        // Map to ADDRESS
+        Address address = modelMapper.map(request.getDeliveryAddress(), Address.class);
+        address.setUser(user);
+        user.setDeliveryAddress(address);
+
+        User updatedUser = userRepo.save(user);
+        return modelMapper.map(updatedUser, ProfileResponseDto.class);
     }
 }

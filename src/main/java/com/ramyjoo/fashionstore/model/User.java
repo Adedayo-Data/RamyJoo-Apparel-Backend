@@ -1,5 +1,6 @@
 package com.ramyjoo.fashionstore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -38,14 +39,24 @@ public class User {
 
     private String gender;
 
-    @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Address> deliveryAddress = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WishlistItem> wishlistItems = new ArrayList<>();
+
+//    @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Address deliveryAddress;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> orders = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private USER_ROLE role = USER_ROLE.ROLE_USER;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Cart cart;
+
+    private String profilePhoto;
 
     @CreationTimestamp
     private LocalDate createdAt;

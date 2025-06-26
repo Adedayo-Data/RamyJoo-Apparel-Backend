@@ -1,6 +1,5 @@
 package com.ramyjoo.fashionstore.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,21 +8,18 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Entity
 @Data
-@NoArgsConstructor
+@Entity
 @AllArgsConstructor
-public class CartItem {
+@NoArgsConstructor
+public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne
-    @JsonIgnore
-    private Cart cart;
-
-    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
     private int quantity;
@@ -32,8 +28,9 @@ public class CartItem {
 
     private BigDecimal totalPrice;
 
-    public BigDecimal getTotalPrice() {
-        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Orders order;
+
 
 }

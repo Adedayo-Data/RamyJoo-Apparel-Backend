@@ -42,6 +42,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
+                                .requestMatchers(
+                                        "/api/products/**",   // All GET product endpoints
+                                        "/api/categories/**", // Optional if categories should be public too
+                                        "/api/public/**"      // If you have other public routes
+                                ).permitAll()
                                 .requestMatchers("/api/**").authenticated()
                                 .anyRequest().permitAll())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -58,7 +63,7 @@ public class SecurityConfig {
 
                 CorsConfiguration cfg = new CorsConfiguration();
 
-                cfg.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // add the vercel link later
+                cfg.setAllowedOrigins(List.of("http://localhost:3000")); // add the vercel link later
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);

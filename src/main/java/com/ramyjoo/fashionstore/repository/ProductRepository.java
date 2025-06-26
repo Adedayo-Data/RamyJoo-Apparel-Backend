@@ -35,4 +35,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "OR lower(p.brand) LIKE lower(concat('%', :keyword, '%'))")
     List<Product> searchProduct(@Param("keyword") String keyword);
 
+    @Query("SELECT DISTINCT c from Product p JOIN p.colorList c WHERE p IS NOT NULL")
+    List<String> getAllColorList();
+
+    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p IS NOT NULL")
+    List<String> getAllBrands();
+
 }

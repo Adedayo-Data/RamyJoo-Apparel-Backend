@@ -1,9 +1,13 @@
 package com.ramyjoo.fashionstore.service;
 
+import com.ramyjoo.fashionstore.dto.FilterOptionDTO;
+import com.ramyjoo.fashionstore.dto.ProductResponseDTO;
 import com.ramyjoo.fashionstore.model.Product;
 import com.ramyjoo.fashionstore.dto.CreateProductRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -36,8 +40,10 @@ public interface ProductService {
     Product UpdateProductStatus(Long id) throws Exception;
 
     void deleteProduct(Long id) throws Exception;
+    ProductResponseDTO updateProductImage(Long productId, MultipartFile file) throws IOException;
 
 
+    List<ProductResponseDTO> filterProducts(String categoryName, String subCategoryName, BigDecimal price, String size, String color, String keyword);
 
-
+    FilterOptionDTO filterOptions();
 }
