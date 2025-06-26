@@ -63,7 +63,7 @@ public class SecurityConfig {
 
                 CorsConfiguration cfg = new CorsConfiguration();
 
-                cfg.setAllowedOrigins(List.of("http://localhost:3000")); // add the vercel link later
+                cfg.setAllowedOrigins(List.of("http://localhost:3000", "https://ramyjooapparel.com/", "https://ramy-joo-apparel.vercel.app", "https://www.ramyjooapparel.com")); // add the vercel link later
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);
