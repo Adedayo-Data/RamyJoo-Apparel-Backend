@@ -50,9 +50,13 @@ public class AppConfig {
             ProductResponseDTO dto = ctx.getDestination();
 
             dto.setAboutItem(List.of(
-                    "WHY APPLE WATCH SERIES 9 — Your essential companion for a healthy life is now even more powerful. The S9 chip enables a super-bright display and a magical new way to quickly and easily interact with your Apple Watch without touching the screen. Advanced health, safety and activity features provide powerful insights and help when you need it. And redesigned apps in watchOS give you more information at a glance.",
-                    "CARBON NEUTRAL — An aluminium Apple Watch Series 9 paired with the latest Sport Loop is carbon neutral.",
-                    "ADVANCED HEALTH FEATURES—Keep an eye on your blood oxygen. Take an ECG anytime. Get notifications if you have an irregular heart rhythm. See how much time you spent in REM, Core, or Deep sleep with sleep stages. Temperature sensing provides insights into overall well-being and cycle tracking. And take note of your state of mind to help build emotional awareness and resilience."
+                    "WHY RAMYJOO APPAREL — Your go-to destination for bold, elegant fashion that speaks confidence. At RamyJoo, every piece is thoughtfully designed to elevate your style, making you feel empowered, expressive, and effortlessly chic. Whether you're dressing up for a special occasion or adding flair to your everyday look, RamyJoo Apparel blends comfort and class for the modern trendsetter.",
+                    "CONSCIOUSLY MADE —\n" +
+                            "\n" +
+                            "We’re committed to sustainability and quality. From responsibly sourced materials to mindful production practices, RamyJoo is on a journey to ensure every outfit reflects care—for you, and for the planet.",
+                    "STYLE MEETS FUNCTION —\n" +
+                            "\n" +
+                            "Beyond aesthetics, our pieces are crafted with comfort, durability, and versatility in mind. Whether it's breathable fabrics, flattering fits, or timeless cuts, RamyJoo Apparel is fashion that works with your lifestyle—day and night."
             ));
 
             dto.setRating(4.5F);
@@ -61,9 +65,9 @@ public class AppConfig {
 
             dto.setReviews(List.of(
                     new ReviewDTO(
-                            "Shohag miah",
+                            "Ade Dayo",
                             "/images/people/person.jpg",
-                            "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Distinctio voluptatem aliquam reprehenderit debitis quidem accusantium",
+                            "Amazing!",
                             4,
                             new Date()
                     )
