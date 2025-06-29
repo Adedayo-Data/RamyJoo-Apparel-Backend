@@ -4,6 +4,7 @@ import com.ramyjoo.fashionstore.dto.FilterOptionDTO;
 import com.ramyjoo.fashionstore.dto.ProductResponseDTO;
 import com.ramyjoo.fashionstore.model.Product;
 import com.ramyjoo.fashionstore.dto.CreateProductRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,10 +13,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-
+@Service
 public interface ProductService {
 
-    List<Product> getAllProducts(); //home page/shop page
+    Page<Product> getAllProducts(int page, int size);
+    //home page/shop page
 
     Optional<Product> getProductById(Long id) throws Exception;
 

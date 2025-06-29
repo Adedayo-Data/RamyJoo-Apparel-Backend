@@ -7,6 +7,7 @@ import com.ramyjoo.fashionstore.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,17 +80,16 @@ public class AdminProductController {
     }
     //OTHER METHODS - WOULD CONSIDER
     @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> allProduct(){
-        List<ProductResponseDTO> productResponseList = new ArrayList<>();
+    public ResponseEntity<Page<ProductResponseDTO>> allProduct(@RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "6") int size){
 
-        List<Product> allProduct = productService.getAllProducts();
+        Page<Product> pagedProducts = productService.getAllProducts(page, size);
 
-        for(Product p : allProduct){
-            ProductResponseDTO responseDTO =  modelMapper.map(p, ProductResponseDTO.class);
-            productResponseList.add(responseDTO);
-        }
+        Page<ProductResponseDTO> dtoPage = pagedProducts.map(product ->
+                modelMapper.map(product, ProductResponseDTO.class)
+        );
 
-        return new ResponseEntity<>(productResponseList, HttpStatus.OK);
+        return new ResponseEntity<>(dtoPage, HttpStatus.OK);
     }
 //
 //    // VIEW SINGLE PRODUCT -> detailed view

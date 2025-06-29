@@ -11,6 +11,10 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,8 +34,9 @@ public class ProductServiceImpl implements ProductService{
     private final ModelMapper modelMapper;
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepo.findAll();
+    public Page<Product> getAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepo.findAll(pageable);
     }
 
     @Override

@@ -6,6 +6,10 @@ import com.ramyjoo.fashionstore.model.Product;
 import com.ramyjoo.fashionstore.service.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +30,15 @@ public class UserProductController {
     ModelMapper modelMapper;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> allProduct(){
-        List<ProductResponseDTO> productResponseList = new ArrayList<>();
+    public ResponseEntity<Page<ProductResponseDTO>> allProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size){
 
-        List<Product> allProduct = productService.getAllProducts();
-
-       
-        for(Product p : allProduct){
-            ProductResponseDTO responseDTO =  modelMapper.map(p, ProductResponseDTO.class);
-            productResponseList.add(responseDTO);
-        }
-
-        return new ResponseEntity<>(productResponseList, HttpStatus.OK);
+        Page<Product> pagedProducts = productService.getAllProducts(page, size);
+        Page<ProductResponseDTO> dtoPage = pagedProducts.map(product ->
+                modelMapper.map(product, ProductResponseDTO.class)
+        );
+        return new ResponseEntity<>(dtoPage, HttpStatus.OK);
     }
 
     // VIEW SINGLE PRODUCT -> detailed view
