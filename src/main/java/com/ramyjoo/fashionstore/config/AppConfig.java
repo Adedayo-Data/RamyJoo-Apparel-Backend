@@ -51,12 +51,8 @@ public class AppConfig {
 
             dto.setAboutItem(List.of(
                     "WHY RAMYJOO APPAREL — Your go-to destination for bold, elegant fashion that speaks confidence. At RamyJoo, every piece is thoughtfully designed to elevate your style, making you feel empowered, expressive, and effortlessly chic. Whether you're dressing up for a special occasion or adding flair to your everyday look, RamyJoo Apparel blends comfort and class for the modern trendsetter.",
-                    "CONSCIOUSLY MADE —\n" +
-                            "\n" +
-                            "We’re committed to sustainability and quality. From responsibly sourced materials to mindful production practices, RamyJoo is on a journey to ensure every outfit reflects care—for you, and for the planet.",
-                    "STYLE MEETS FUNCTION —\n" +
-                            "\n" +
-                            "Beyond aesthetics, our pieces are crafted with comfort, durability, and versatility in mind. Whether it's breathable fabrics, flattering fits, or timeless cuts, RamyJoo Apparel is fashion that works with your lifestyle—day and night."
+                    "CONSCIOUSLY MADE — We’re committed to sustainability and quality. From responsibly sourced materials to mindful production practices, RamyJoo is on a journey to ensure every outfit reflects care—for you, and for the planet.",
+                    "STYLE MEETS FUNCTION - Beyond aesthetics, our pieces are crafted with comfort, durability, and versatility in mind. Whether it's breathable fabrics, flattering fits, or timeless cuts, RamyJoo Apparel is fashion that works with your lifestyle—day and night."
             ));
 
             dto.setRating(4.5F);
