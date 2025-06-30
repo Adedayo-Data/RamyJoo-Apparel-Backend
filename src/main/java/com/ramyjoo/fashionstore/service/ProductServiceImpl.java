@@ -9,6 +9,7 @@ import com.ramyjoo.fashionstore.repository.ProductRepository;
 import com.ramyjoo.fashionstore.repository.SubCategoryRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
@@ -34,9 +35,16 @@ public class ProductServiceImpl implements ProductService{
     private final ModelMapper modelMapper;
 
     @Override
-    public Page<Product> getAllProducts(int page, int size) {
+    public Page<Product> getAllProducts(int page, int size,
+                                        String category, String color, String brand,
+                                        String keyword, BigDecimal minPrice, BigDecimal maxPrice) {
         Pageable pageable = PageRequest.of(page, size);
-        return productRepo.findAll(pageable);
+        Specification<Product> spec = ProductSpecification.filterBy(category, color, brand, keyword, minPrice, maxPrice);
+        return productRepo.findAll(spec, pageable);
+    }
+
+    public List<Product> homepageProducts(){
+        return productRepo.findAll();
     }
 
     @Override

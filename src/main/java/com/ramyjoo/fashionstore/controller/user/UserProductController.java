@@ -29,12 +29,31 @@ public class UserProductController {
     @Autowired
     ModelMapper modelMapper;
 
+    @GetMapping("all")
+    public ResponseEntity<List<ProductResponseDTO>> homepageProducts(){
+
+        List<Product> allProduct = productService.homepageProducts();
+        List<ProductResponseDTO> dtoList = new ArrayList<>();
+        for(Product p : allProduct){
+            ProductResponseDTO responseDTO = modelMapper.map(p, ProductResponseDTO.class);
+            dtoList.add(responseDTO);
+        }
+
+        return new ResponseEntity<>(dtoList, HttpStatus.OK);
+    }
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> allProduct(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size){
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) BigDecimal min,
+            @RequestParam(required = false) BigDecimal max){
 
-        Page<Product> pagedProducts = productService.getAllProducts(page, size);
+        Page<Product> pagedProducts = productService.getAllProducts(page, size,
+                category, color, brand, keyword, min, max);
         Page<ProductResponseDTO> dtoPage = pagedProducts.map(product ->
                 modelMapper.map(product, ProductResponseDTO.class)
         );

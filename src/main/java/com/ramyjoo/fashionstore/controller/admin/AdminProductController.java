@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -80,15 +81,21 @@ public class AdminProductController {
     }
     //OTHER METHODS - WOULD CONSIDER
     @GetMapping
-    public ResponseEntity<Page<ProductResponseDTO>> allProduct(@RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "6") int size){
+    public ResponseEntity<Page<ProductResponseDTO>> allProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) BigDecimal min,
+            @RequestParam(required = false) BigDecimal max){
 
-        Page<Product> pagedProducts = productService.getAllProducts(page, size);
-
+        Page<Product> pagedProducts = productService.getAllProducts(page, size,
+                category, color, brand, keyword, min, max);
         Page<ProductResponseDTO> dtoPage = pagedProducts.map(product ->
                 modelMapper.map(product, ProductResponseDTO.class)
         );
-
         return new ResponseEntity<>(dtoPage, HttpStatus.OK);
     }
 //

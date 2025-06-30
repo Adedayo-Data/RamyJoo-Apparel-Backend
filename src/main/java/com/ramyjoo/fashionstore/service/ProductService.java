@@ -16,7 +16,11 @@ import java.util.Optional;
 @Service
 public interface ProductService {
 
-    Page<Product> getAllProducts(int page, int size);
+    List<Product> homepageProducts();
+
+    Page<Product> getAllProducts(int page, int size,
+                                 String category, String color, String brand,
+                                 String keyword, BigDecimal minPrice, BigDecimal maxPrice);
     //home page/shop page
 
     Optional<Product> getProductById(Long id) throws Exception;
