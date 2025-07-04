@@ -62,8 +62,8 @@ public class AdminProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@RequestBody CreateProductRequest updateRequest,
-                                                            @PathVariable Long id) throws Exception{
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) throws Exception{
+
         productService.deleteProduct(id);
 
         return new ResponseEntity<>("Operation Successful", HttpStatus.OK);
