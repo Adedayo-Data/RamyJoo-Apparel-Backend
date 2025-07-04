@@ -1,8 +1,11 @@
 package com.ramyjoo.fashionstore.security;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class JwtConstant {
 
-    public static final String SECRET_KEY = "ofjskfbdkjlbvlkxjzbvjkxzbvklbvjxbvzjklxbvlmvmkxsfkjjbs<fknxvjbx";
+    @Value("${secret-key}")
+    public static String SECRET_KEY;
 
     public static final String GET_HEADER = "Authorization";
 
