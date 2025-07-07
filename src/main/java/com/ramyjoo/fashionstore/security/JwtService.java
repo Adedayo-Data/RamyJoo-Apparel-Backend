@@ -12,6 +12,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    JwtConstant constant = new JwtConstant();
     // generate token
     public String generateToken(UserDetails userDetails){
 
@@ -19,7 +20,7 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 100000 * 60 * 60))
-                .signWith(Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes()))
+                .signWith(Keys.hmacShaKeyFor(constant.SECRET_KEY.getBytes()))
                 .compact();
     }
 
@@ -41,7 +42,7 @@ public class JwtService {
 
     public Claims getAllClaims(String token){
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(constant.SECRET_KEY.getBytes()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
