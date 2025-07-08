@@ -54,7 +54,8 @@ public class AdminProductController {
     public ResponseEntity<ProductResponseDTO> updateProduct(@RequestBody CreateProductRequest updateRequest,
                                                             @PathVariable Long id){
         Product product = productService.updateProduct(id, updateRequest);
-        ProductResponseDTO responseDTO = new ProductResponseDTO();
+        new ProductResponseDTO();
+        ProductResponseDTO responseDTO;
 
         responseDTO =  modelMapper.map(product, ProductResponseDTO.class);
 
