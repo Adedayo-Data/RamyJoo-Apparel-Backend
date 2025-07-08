@@ -50,4 +50,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p IS NOT NULL")
     List<String> getAllBrands();
 
+    @Query("SELECT FUNCTION('to_char', p.createdAt, 'Mon') AS month, COUNT(p.id) FROM Product p GROUP BY month ORDER BY MIN(p.createdAt)")
+    List<Object[]> countProductsByMonth();
+
 }
