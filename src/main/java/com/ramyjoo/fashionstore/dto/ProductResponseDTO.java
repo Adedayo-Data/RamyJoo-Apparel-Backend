@@ -10,17 +10,18 @@ import java.util.List;
 public class ProductResponseDTO {
 
     private Long id;
-    private String productName; // 👈 this maps from product.productName
+    private String productName;
     private String category; // 👈 maps from product.subCategory.subCategoryName
     private String description;
-    private List<String> aboutItem; // we’ll keep it null or empty for now (you don’t have it in Product)
+    private List<String> aboutItem;
     private BigDecimal price;
-    private int discount; // you don’t have this yet — set to 0
-    private float rating;   // you don’t have this yet — set to 0
-    private List<ReviewDTO> reviews = new ArrayList<>(); // you don’t have this — set to empty list
+    private int discount;
+    private float rating;
+    private List<ReviewDTO> reviews = new ArrayList<>();
     private String brand;
     private List<String> color;
-    private int stockItems; // you don’t have this — set to 0
+    private List<String> size;
+    private int stockItems;
     private List<String> images;
 
     // Getters and Setters
